@@ -168,14 +168,15 @@ function createApp(pool) {
   app.get('/api/cupones/code/:code', async (req, res) => {
     try {
       const result = await pool.query(
-        `SELECT code, discount_percent, expires_on, usage_limit, usage_count, active
+        `SELECT code, discount_percent, (expires_on >= CURRENT_DATE) AS unexpired,
+           usage_limit, usage_count, active
          FROM coupons WHERE code = $1`,
         [req.params.code.trim().toUpperCase()],
       );
       const coupon = result.rows[0];
       const valid = coupon
         && coupon.active
-        && coupon.expires_on >= new Date().toISOString().slice(0, 10)
+        && coupon.unexpired
         && coupon.usage_count < coupon.usage_limit;
       if (!valid) return res.status(404).json({ valido: false, mensaje: 'El cupón no existe, venció o no está disponible' });
       return res.json({ valido: true, codigo: coupon.code, descuento: coupon.discount_percent });

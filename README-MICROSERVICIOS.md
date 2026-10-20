@@ -20,6 +20,15 @@ docker compose up --build
 
 Abrir <http://localhost:8080>. Compose inicia MongoDB, PostgreSQL y MySQL con volúmenes persistentes, aplica las migraciones iniciales idempotentes de Catálogo y Pedidos, y levanta las cuatro aplicaciones backend. Las credenciales incluidas en Compose son solamente para desarrollo local.
 
+Para cargar los productos/cupones y cuentas de prueba después de iniciar Compose:
+
+```powershell
+docker compose exec ms-catalogo npm run seed
+docker compose exec ms-usuarios npm run seed
+```
+
+Las cuentas locales son `admin@example.com` y `cliente@example.com`, ambas con contraseña `demo1234`. El seed de Usuarios no se ejecuta con `NODE_ENV=production`.
+
 Para ejecutar cada API sin Docker, instalar dependencias en cada carpeta y configurar su `.env`:
 
 ```powershell

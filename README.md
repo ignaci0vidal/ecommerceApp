@@ -116,6 +116,24 @@ docker compose down
 
 Los datos se guardan en volúmenes de Docker. `docker compose down -v` también los elimina; usarlo solo si se desea reiniciar las bases locales.
 
+### Cargar datos de prueba
+
+Con el stack iniciado, abrir otra terminal en la raíz y ejecutar:
+
+```powershell
+docker compose exec ms-catalogo npm run seed
+docker compose exec ms-usuarios npm run seed
+```
+
+El seed de Catálogo agrega productos y cupones de muestra sin duplicar los existentes. El seed de Usuarios crea cuentas locales para probar el login y el panel:
+
+| Rol | Email | Contraseña |
+|---|---|---|
+| Administrador | `admin@example.com` | `demo1234` |
+| Cliente | `cliente@example.com` | `demo1234` |
+
+Estas credenciales son exclusivamente para desarrollo local; el seed de Usuarios se niega a ejecutarse cuando `NODE_ENV=production`.
+
 ### Ejecutar aplicaciones sin Docker
 
 Cada backend requiere su propia base de datos accesible y un archivo `.env` creado a partir de su `.env.example`. Instalar y ejecutar las aplicaciones en terminales separadas:

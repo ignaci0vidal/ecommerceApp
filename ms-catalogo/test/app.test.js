@@ -29,6 +29,19 @@ beforeEach(async () => {
           rowCount: 1,
         };
       }
+      if (sql.includes('FROM coupons WHERE code')) {
+        return {
+          rows: [{
+            code: values[0],
+            discount_percent: 10,
+            unexpired: true,
+            usage_limit: 100,
+            usage_count: 0,
+            active: true,
+          }],
+          rowCount: 1,
+        };
+      }
       if (sql.includes('INSERT INTO products')) {
         return {
           rows: [{
@@ -62,6 +75,13 @@ test('product listing uses bound filters and formats integer cents as currency',
   assert.equal(result.items[0].precio, 1599);
   assert.deepEqual(calls[1].values, ['Cocina', '%Caf%', 2, 0]);
   assert.match(calls[1].sql, /name ILIKE \$2/);
+});
+
+test('coupon validation uses the database expiration result', async () => {
+  const response = await fetch(`${baseUrl}/api/cupones/code/BIENVENIDA10`);
+  const result = await response.json();
+  assert.equal(response.status, 200);
+  assert.deepEqual(result, { valido: true, codigo: 'BIENVENIDA10', descuento: 10 });
 });
 
 test('product writes require an administrator JWT', async () => {
