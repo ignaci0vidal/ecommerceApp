@@ -393,6 +393,10 @@
             min-width: 920px;
         }
 
+        .customer-admin-table {
+            min-width: 960px;
+        }
+
         .admin-table th {
             position: sticky;
             top: 0;
@@ -858,29 +862,35 @@
 
 /* ===== TABLA DE CLIENTES ===== */
 
-#customers-container .admin-table th:nth-child(1),
-#customers-container .admin-table td:nth-child(1) {
-    width: 70px;
+#customers-container .customer-admin-table th:nth-child(1),
+#customers-container .customer-admin-table td:nth-child(1) {
+    width: 210px;
 }
 
-#customers-container .admin-table th:nth-child(2),
-#customers-container .admin-table td:nth-child(2) {
+#customers-container .customer-admin-table th:nth-child(2),
+#customers-container .customer-admin-table td:nth-child(2) {
+    width: 200px;
+}
+
+#customers-container .customer-admin-table th:nth-child(3),
+#customers-container .customer-admin-table td:nth-child(3) {
     width: 240px;
 }
 
-#customers-container .admin-table th:nth-child(3),
-#customers-container .admin-table td:nth-child(3) {
-    width: 240px;
-}
-
-#customers-container .admin-table th:nth-child(4),
-#customers-container .admin-table td:nth-child(4) {
+#customers-container .customer-admin-table th:nth-child(4),
+#customers-container .customer-admin-table td:nth-child(4) {
     width: 150px;
 }
 
-#customers-container .admin-table th:nth-child(5),
-#customers-container .admin-table td:nth-child(5) {
+#customers-container .customer-admin-table th:nth-child(5),
+#customers-container .customer-admin-table td:nth-child(5) {
     width: 200px;
+}
+
+.customer-id-cell {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    font-size: 0.78rem !important;
 }
 
 /* ===== TABLA DE DESCUENTOS ===== */
@@ -1186,6 +1196,7 @@
                 nombre: '',
                 categoria: ''
             };
+            let availableProductCategories = [];
 
             function escapeHtml(value) {
                 return String(value ?? '')
@@ -1244,6 +1255,8 @@
                     if (!response.ok) throw new Error('Error al cargar categorías');
 
                     const categorias = await response.json();
+                    if (!Array.isArray(categorias)) throw new Error('La respuesta de categorías no es válida');
+                    availableProductCategories = categorias;
                     const options = ['<option value="">Todas las categorías</option>'];
 
                     categorias.forEach((categoria) => {
@@ -1252,8 +1265,29 @@
                     });
 
                     categorySelect.innerHTML = options.join('');
+
+                    const productCategorySelect = document.getElementById('prod-category');
+                    if (productCategorySelect) {
+                        const selectedCategory = productCategorySelect.dataset.selectedCategory || productCategorySelect.value;
+                        const productCategories = [...availableProductCategories];
+                        if (selectedCategory && !productCategories.includes(selectedCategory)) {
+                            productCategories.push(selectedCategory);
+                        }
+                        productCategorySelect.innerHTML = [
+                            '<option value="" disabled>Seleccioná una categoría</option>',
+                            ...productCategories.map((categoria) => (
+                                `<option value="${escapeHtml(categoria)}" ${categoria === selectedCategory ? 'selected' : ''}>${escapeHtml(categoria)}</option>`
+                            )),
+                        ].join('');
+                        productCategorySelect.disabled = productCategories.length === 0;
+                    }
                 } catch (error) {
-                    console.error('Error:', error);
+                    console.error('Error al cargar categorías:', error);
+                    const productCategorySelect = document.getElementById('prod-category');
+                    if (productCategorySelect) {
+                        productCategorySelect.innerHTML = '<option value="">No se pudieron cargar las categorías</option>';
+                        productCategorySelect.disabled = true;
+                    }
                 }
             }
 
@@ -1358,6 +1392,16 @@
 
             function getCouponId(coupon) {
                 return coupon.id_cupon || coupon.id;
+            }
+
+            function formatCouponExpiration(value) {
+                const dateParts = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+                if (dateParts) {
+                    return `${dateParts[3]}/${dateParts[2]}/${dateParts[1]}`;
+                }
+
+                const date = new Date(value);
+                return Number.isNaN(date.getTime()) ? String(value || '') : date.toLocaleDateString('es-AR');
             }
 
             function getCouponStatus(coupon) {
@@ -1682,7 +1726,7 @@
                     
                     let html = `
                         <div class="admin-table-container">
-                            <table class="admin-table">
+                            <table class="admin-table customer-admin-table">
                                 <thead>
                                     <tr>
                                         <th>ID</th>
@@ -1701,7 +1745,7 @@
                         
                         html += `
                             <tr>
-                                <td>${escapeHtml(customer.id)}</td>
+                                <td class="customer-id-cell">${escapeHtml(customer.id)}</td>
                                 <td><strong>${escapeHtml(nombre)}</strong></td>
                                 <td>${escapeHtml(customer.email || '')}</td>
                                 <td><span class="role-badge role-${rol}">${rol === 'admin' ? 'Administrador' : 'Cliente'}</span></td>
@@ -1822,7 +1866,7 @@
                                 <td>${escapeHtml(couponId)}</td>
                                 <td><strong>${escapeHtml(coupon.codigo || 'Sin código')}</strong></td>
                                 <td>${escapeHtml(coupon.descuento)}%</td>
-                                <td>${escapeHtml(coupon.fecha_vencimiento || '')}</td>
+                                <td>${escapeHtml(formatCouponExpiration(coupon.fecha_vencimiento))}</td>
                                 <td>${usosActuales}/${limiteStock}</td>
                                 <td><span class="status-chip ${status.className}">${status.label}</span></td>
                                 <td class="admin-actions">
@@ -1890,7 +1934,9 @@
                         </div>
                         <div class="form-group">
                             <label>Categoría *</label>
-                            <input type="text" id="prod-category" value="${isEdit ? (product.categoria || product.category || '') : ''}" required placeholder="Ej. Electrónica">
+                            <select id="prod-category" data-selected-category="${escapeHtml(isEdit ? (product.categoria || product.category || '') : '')}" required>
+                                <option value="" disabled selected>Seleccioná una categoría</option>
+                            </select>
                         </div>
                         <div class="form-group">
                             <label>URL de la Imagen</label>
@@ -1923,6 +1969,7 @@
                 
                 modal.classList.add('active');
                 document.body.style.overflow = 'hidden';
+                loadProductCategories();
             }
             
             async function saveProduct(productId = null) {
