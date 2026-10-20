@@ -89,8 +89,7 @@ Las rutas internas de inventario y transición de estado requieren `x-service-to
 ## Pendientes para terminar la migración
 
 - Migración repetible desde `ecommerce.sqlite` con modo simulación, referencias y preservación de contraseñas ya hasheadas e IDs históricos.
-- Migración repetible desde `ecommerce.sqlite` con modo simulación, referencias y preservación de contraseñas ya hasheadas e IDs históricos.
 - Completar categorías/cupones administrativos y equivalencia de todas las funcionalidades del dashboard.
 - Conciliación de compras y cancelaciones ejercitada ante reinicios/fallas reales de PostgreSQL y MySQL.
 - Pruebas end-to-end con los tres motores reales, concurrencia e idempotencia bajo varias instancias.
-- Reubicar el README de aplicación sin sobrescribir los cambios locales preexistentes; documentar las cuatro secuencias por separado cuando se complete la implementación.
+- Documentar las cuatro secuencias por separado cuando se complete la implementación.
