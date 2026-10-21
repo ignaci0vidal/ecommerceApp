@@ -125,7 +125,7 @@ docker compose exec ms-catalogo npm run seed
 docker compose exec ms-usuarios npm run seed
 ```
 
-El seed de Catálogo agrega productos de muestra con descripción, imagen local, precio, stock y categoría, además de cupones, sin duplicar productos existentes ni restablecer el stock. El seed de Usuarios crea cuentas locales de ejemplo para probar el login y el panel; incluye perfiles demo con nombres de figuras públicas y correos ficticios `@example.com`:
+El seed de Catálogo agrega productos de muestra con descripción, imagen local, precio, stock y categorías específicas (por ejemplo, Gaming, Periféricos PC, Componentes PC, Almacenamiento y Redes y Conectividad), además de cupones. Al volver a ejecutarlo, corrige las categorías y completa descripciones o imágenes faltantes sin duplicar productos ni restablecer el stock. El seed de Usuarios crea cuentas locales de ejemplo para probar el login y el panel; incluye perfiles demo con nombres de figuras públicas y correos ficticios `@example.com`:
 
 | Rol | Email | Contraseña |
 |---|---|---|

@@ -19,12 +19,12 @@ beforeEach(async () => {
     async query(sql, values) {
       calls.push({ sql, values });
       if (sql.includes('COUNT(*)')) return { rows: [{ count: 1 }], rowCount: 1 };
-      if (sql.includes('SELECT * FROM products')) {
+      if (sql.includes('FROM products')) {
         return {
           rows: [{
             id: '31', name: 'Café', price_cents: '159900', stock: 4, category_name: 'Cocina',
             description: 'Café de prueba', image: null, rating: '4.5', reviews: 7,
-            valid_from: null, valid_to: null,
+            valid_from: null, valid_to: null, units_sold: '4',
           }],
           rowCount: 1,
         };
@@ -75,6 +75,26 @@ test('product listing uses bound filters and formats integer cents as currency',
   assert.equal(result.items[0].precio, 1599);
   assert.deepEqual(calls[1].values, ['Cocina', '%Caf%', 2, 0]);
   assert.match(calls[1].sql, /name ILIKE \$2/);
+});
+
+test('product listing supports price, newest, and net best-selling sort orders', async () => {
+  const sortCases = [
+    ['precio_asc', /ORDER BY products\.price_cents ASC/],
+    ['precio_desc', /ORDER BY products\.price_cents DESC/],
+    ['novedad', /ORDER BY products\.created_at DESC/],
+    ['mas_vendidos', /ORDER BY GREATEST\(COALESCE\(sales\.units_sold, 0\), 0\) DESC/],
+  ];
+
+  for (const [sort, expectedOrder] of sortCases) {
+    const response = await fetch(`${baseUrl}/api/productos?orden=${sort}`);
+    const result = await response.json();
+    assert.equal(response.status, 200);
+    assert.equal(result.items[0].vendidos, 4);
+    assert.match(calls.at(-1).sql, expectedOrder);
+  }
+
+  assert.match(calls.at(-1).sql, /FROM stock_movements/);
+  assert.match(calls.at(-1).sql, /THEN quantity ELSE -quantity/);
 });
 
 test('coupon validation uses the database expiration result', async () => {
