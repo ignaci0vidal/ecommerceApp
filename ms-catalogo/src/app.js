@@ -18,6 +18,7 @@ const formatProduct = (row) => ({
   image: row.image,
   rating: Number(row.rating),
   reviews: row.reviews,
+  vendidos: Number(row.units_sold || 0),
   validFrom: row.valid_from,
   validTo: row.valid_to,
 });
@@ -42,6 +43,12 @@ function createApp(pool) {
       const limit = Math.min(Math.max(Number.parseInt(req.query.limit, 10) || 6, 1), 100);
       const sortColumn = { nombre: 'name', precio: 'price_cents', id: 'id' }[req.query.sortBy] || 'id';
       const sortOrder = String(req.query.sortOrder || 'ASC').toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
+      const orderBy = {
+        precio_asc: 'products.price_cents ASC, products.id ASC',
+        precio_desc: 'products.price_cents DESC, products.id ASC',
+        novedad: 'products.created_at DESC, products.id DESC',
+        mas_vendidos: 'GREATEST(COALESCE(sales.units_sold, 0), 0) DESC, products.created_at DESC, products.id DESC',
+      }[req.query.orden] || `products.${sortColumn} ${sortOrder}, products.id ASC`;
       const filters = ['active = TRUE', '(valid_from IS NULL OR valid_from <= NOW())', '(valid_to IS NULL OR valid_to >= NOW())'];
       const values = [];
 
@@ -58,7 +65,18 @@ function createApp(pool) {
       const countResult = await pool.query(`SELECT COUNT(*)::int AS count FROM products WHERE ${where}`, values);
       const count = countResult.rows[0].count;
       const rows = await pool.query(
-        `SELECT * FROM products WHERE ${where} ORDER BY ${sortColumn} ${sortOrder} LIMIT $${values.length + 1} OFFSET $${values.length + 2}`,
+        `SELECT products.*,
+           GREATEST(COALESCE(sales.units_sold, 0), 0) AS units_sold
+         FROM products
+         LEFT JOIN (
+           SELECT product_id,
+             SUM(CASE WHEN movement_type = 'sale' THEN quantity ELSE -quantity END) AS units_sold
+           FROM stock_movements
+           GROUP BY product_id
+         ) sales ON sales.product_id = products.id
+         WHERE ${where}
+         ORDER BY ${orderBy}
+         LIMIT $${values.length + 1} OFFSET $${values.length + 2}`,
         [...values, limit, (page - 1) * limit],
       );
       res.json({

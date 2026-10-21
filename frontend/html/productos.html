@@ -34,12 +34,21 @@
         <section class="product-title">
             <h1>Nuestros productos</h1>
         </section>
-        <section>
+        <section class="catalog-controls" aria-label="Filtros y orden de productos">
             <div class="filters-container">
                 <h3>Filtrar por categoría</h3>
                 <div class="filters-buttons" id="category-filters">
                     <button class="filter-btn active" data-category="all">Todos</button>
                 </div>
+            </div>
+            <div class="products-sort">
+                <label for="products-sort">Ordenar por</label>
+                <select id="products-sort" name="orden">
+                    <option value="novedad" selected>Novedad</option>
+                    <option value="precio_asc">Precio: menor a mayor</option>
+                    <option value="precio_desc">Precio: mayor a menor</option>
+                    <option value="mas_vendidos">Más vendidos</option>
+                </select>
             </div>
         </section>
 

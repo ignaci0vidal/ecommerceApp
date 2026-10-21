@@ -38,57 +38,57 @@ const products = [
     image: '/img/ExprimidorCitricos.png', rating: 4.1, reviews: 88,
   },
   {
-    name: 'Auriculares Bluetooth Inalámbricos', price: 34990, stock: 30, category: 'Electrónica',
+    name: 'Auriculares Bluetooth Inalámbricos', price: 34990, stock: 30, category: 'Audio',
     description: 'Auriculares inalámbricos Bluetooth con micrófono integrado, controles en el dispositivo y estuche de carga compacto. Compatibles con celulares, tablets y computadoras.',
     image: '/img/AuricularesBluetooth.png', rating: 4.5, reviews: 180,
   },
   {
-    name: 'Smart TV LED 43 pulgadas', price: 459990, stock: 7, category: 'Electrónica',
+    name: 'Smart TV LED 43 pulgadas', price: 459990, stock: 7, category: 'TV y Video',
     description: 'Televisor LED Smart de 43 pulgadas con resolución Full HD, Wi-Fi integrado, aplicaciones de streaming y puertos HDMI y USB para conectar otros dispositivos.',
     image: '/img/SmartTV43.png', rating: 4.6, reviews: 134,
   },
   {
-    name: 'Router TP-Link Archer Wi-Fi', price: 89990, stock: 18, category: 'Electrónica',
+    name: 'Router TP-Link Archer Wi-Fi', price: 89990, stock: 18, category: 'Redes y Conectividad',
     description: 'Router inalámbrico de doble banda con cuatro antenas externas, puertos Ethernet y configuración guiada. Diseñado para conectar varios dispositivos en el hogar.',
     image: '/img/RouterTP-LinkArcher.png', rating: 4.5, reviews: 216,
   },
   {
-    name: 'Repetidor Wi-Fi TP-Link', price: 49990, stock: 22, category: 'Electrónica',
+    name: 'Repetidor Wi-Fi TP-Link', price: 49990, stock: 22, category: 'Redes y Conectividad',
     description: 'Extensor de señal Wi-Fi con indicador de intensidad y configuración sencilla. Ayuda a ampliar la cobertura de la red en ambientes alejados del router.',
     image: '/img/RepetidorTP-Link.png', rating: 4.2, reviews: 91,
   },
   {
-    name: 'Cámara de Seguridad Exterior', price: 119990, stock: 11, category: 'Electrónica',
+    name: 'Cámara de Seguridad Exterior', price: 119990, stock: 11, category: 'Seguridad',
     description: 'Cámara de seguridad para exterior con visión nocturna, detección de movimiento y acceso remoto desde una aplicación. Carcasa resistente para instalación en exteriores.',
     image: '/img/CamaraSeguridadExterior.png', rating: 4.3, reviews: 73,
   },
   {
-    name: 'Disco Externo 1TB', price: 99990, stock: 14, category: 'Electrónica',
+    name: 'Disco Externo 1TB', price: 99990, stock: 14, category: 'Almacenamiento',
     description: 'Disco externo portátil de 1 TB con conexión USB para guardar y transportar documentos, fotos y videos. Compatible con computadoras de escritorio y notebooks.',
     image: '/img/DiscoExterno1TB.png', rating: 4.6, reviews: 158,
   },
   {
-    name: 'Gabinete Kit Mid Tower', price: 134990, stock: 9, category: 'Electrónica',
+    name: 'Gabinete Kit Mid Tower', price: 134990, stock: 9, category: 'Componentes PC',
     description: 'Gabinete mid tower con espacio para armado de PC, ventilación frontal y panel lateral transparente. Compatible con formatos de placa madre ATX y micro-ATX.',
     image: '/img/GabineteKitMidTower.png', rating: 4.4, reviews: 56,
   },
   {
-    name: 'Hub USB-C de 4 Puertos', price: 32990, stock: 26, category: 'Electrónica',
+    name: 'Hub USB-C de 4 Puertos', price: 32990, stock: 26, category: 'Periféricos PC',
     description: 'Hub compacto con conector USB-C y cuatro puertos USB para ampliar las conexiones de notebooks y tablets compatibles. Diseño portátil para escritorio o viaje.',
     image: '/img/HubUSB-C4Puertos.png', rating: 4.1, reviews: 82,
   },
   {
-    name: 'Mouse Logitech M280', price: 27990, stock: 32, category: 'Electrónica',
+    name: 'Mouse Logitech M280', price: 27990, stock: 32, category: 'Periféricos PC',
     description: 'Mouse inalámbrico ergonómico con receptor USB, sensor óptico y diseño cómodo para uso diario. Compatible con Windows, macOS y otros sistemas con conexión USB.',
     image: '/img/MouseLogitechM280.png', rating: 4.7, reviews: 310,
   },
   {
-    name: 'Pad Mouse Gamer', price: 14990, stock: 45, category: 'Electrónica',
+    name: 'Pad Mouse Gamer', price: 14990, stock: 45, category: 'Gaming',
     description: 'Mouse pad de superficie textil para movimientos precisos y base antideslizante. Compatible con sensores ópticos y láser; fácil de enrollar y transportar.',
     image: '/img/PadMouseGamer.png', rating: 4.3, reviews: 109,
   },
   {
-    name: 'Parlante Bluetooth Portátil', price: 54990, stock: 20, category: 'Electrónica',
+    name: 'Parlante Bluetooth Portátil', price: 54990, stock: 20, category: 'Audio',
     description: 'Parlante portátil con conexión Bluetooth, controles integrados y batería recargable. Reproduce música desde celulares, tablets y otros dispositivos compatibles.',
     image: '/img/ParlanteBluetooth.png', rating: 4.4, reviews: 147,
   },
@@ -98,47 +98,47 @@ const products = [
     image: '/img/PavaEléctrica.png', rating: 4.5, reviews: 128,
   },
   {
-    name: 'Pendrive Kingston 64GB', price: 11990, stock: 50, category: 'Electrónica',
+    name: 'Pendrive Kingston 64GB', price: 11990, stock: 50, category: 'Almacenamiento',
     description: 'Memoria USB Kingston de 64 GB para transportar archivos, fotos y documentos. Conexión USB compatible con computadoras y dispositivos con puerto estándar.',
     image: '/img/PendriveKingston64GB.png', rating: 4.6, reviews: 244,
   },
   {
-    name: 'Powerbank 20000mAh', price: 69990, stock: 17, category: 'Electrónica',
+    name: 'Powerbank 20000mAh', price: 69990, stock: 17, category: 'Accesorios para Celulares',
     description: 'Batería portátil de 20.000 mAh para recargar dispositivos compatibles fuera de casa. Incluye indicadores de carga y múltiples salidas para conectar equipos.',
     image: '/img/Powerbank20000mAh.png', rating: 4.2, reviews: 97,
   },
   {
-    name: 'Memoria RAM DDR4 8GB Fury', price: 44990, stock: 16, category: 'Electrónica',
+    name: 'Memoria RAM DDR4 8GB Fury', price: 44990, stock: 16, category: 'Componentes PC',
     description: 'Módulo de memoria RAM DDR4 de 8 GB para equipos de escritorio compatibles. Disipador de perfil bajo y formato DIMM; verificar compatibilidad con la placa madre.',
     image: '/img/RAMDDR48GbFury.png', rating: 4.6, reviews: 186,
   },
   {
-    name: 'Smartwatch Deportivo', price: 79990, stock: 13, category: 'Electrónica',
+    name: 'Smartwatch Deportivo', price: 79990, stock: 13, category: 'Wearables',
     description: 'Reloj inteligente deportivo con seguimiento de actividad, notificaciones y pantalla táctil. Se sincroniza con teléfonos compatibles mediante Bluetooth.',
     image: '/img/SmartwatchDeportivo.png', rating: 4.0, reviews: 75,
   },
   {
-    name: 'Soporte de Celular con Carga', price: 25990, stock: 28, category: 'Electrónica',
+    name: 'Soporte de Celular con Carga', price: 25990, stock: 28, category: 'Accesorios para Celulares',
     description: 'Soporte de escritorio para celular con ángulo ajustable y espacio para conectar el cable de carga. Base estable para videollamadas y visualización de contenido.',
     image: '/img/SoporteCelularCarga.png', rating: 4.1, reviews: 64,
   },
   {
-    name: 'SSD Kingston 480GB', price: 84990, stock: 12, category: 'Electrónica',
+    name: 'SSD Kingston 480GB', price: 84990, stock: 12, category: 'Almacenamiento',
     description: 'Unidad de estado sólido Kingston de 480 GB para mejorar el almacenamiento y los tiempos de carga de equipos compatibles. Formato SATA de 2,5 pulgadas.',
     image: '/img/SSDKingston480Gb.png', rating: 4.7, reviews: 202,
   },
   {
-    name: 'Tablet Lenovo Tab M10', price: 279990, stock: 6, category: 'Electrónica',
+    name: 'Tablet Lenovo Tab M10', price: 279990, stock: 6, category: 'Tablets',
     description: 'Tablet Lenovo de 10 pulgadas para navegación, lectura, videollamadas y entretenimiento. Incluye conectividad inalámbrica y sistema operativo Android.',
     image: '/img/TabletLenovoTabM10.png', rating: 4.3, reviews: 119,
   },
   {
-    name: 'Webcam Full HD', price: 57990, stock: 19, category: 'Electrónica',
+    name: 'Webcam Full HD', price: 57990, stock: 19, category: 'Periféricos PC',
     description: 'Cámara web Full HD con micrófono integrado y conexión USB para reuniones, clases virtuales y transmisiones. Compatible con las principales aplicaciones de videollamadas.',
     image: '/img/WebcamFullHD.png', rating: 4.2, reviews: 84,
   },
   {
-    name: 'Aro de Luz LED', price: 21990, stock: 33, category: 'Electrónica',
+    name: 'Aro de Luz LED', price: 21990, stock: 33, category: 'Streaming y Creación de Contenido',
     description: 'Aro de luz LED con varios niveles de intensidad para mejorar la iluminación de videollamadas, fotografías y transmisiones. Compatible con soportes estándar.',
     image: '/img/ArodeLuzLED.png', rating: 4.1, reviews: 67,
   },
@@ -172,9 +172,15 @@ async function seed() {
         ],
       );
       await client.query(
-        `UPDATE products SET description = $2
-         WHERE name = $1 AND description = ''`,
-        [product.name, product.description],
+        `UPDATE products
+         SET category_name = $2,
+             description = CASE WHEN BTRIM(description) = '' THEN $3 ELSE description END,
+             image = COALESCE(NULLIF(BTRIM(image), ''), $4),
+             updated_at = NOW()
+         WHERE name = $1
+           AND (category_name IS DISTINCT FROM $2 OR BTRIM(description) = ''
+             OR image IS NULL OR BTRIM(image) = '')`,
+        [product.name, product.category, product.description, product.image],
       );
     }
 

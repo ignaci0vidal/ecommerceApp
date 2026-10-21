@@ -2,6 +2,7 @@
 let allProducts = [];
 let accumulatedProducts = [];
 let currentCategory = 'all';
+let currentProductSort = 'novedad';
 let currentProductsPage = 1;
 let productsPagination = null;
 
@@ -392,6 +393,7 @@ async function loadProductsPage(page = 1) {
     const params = new URLSearchParams({
       page: currentProductsPage,
       limit: PRODUCTS_PAGE_LIMIT,
+      orden: currentProductSort,
     });
 
     if (currentCategory !== 'all') {
@@ -1299,6 +1301,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Cargar productos según la página
   if (document.getElementById('products-list')) {
+    const sortSelect = document.getElementById('products-sort');
+    if (sortSelect) {
+      currentProductSort = sortSelect.value;
+      sortSelect.addEventListener('change', () => {
+        currentProductSort = sortSelect.value;
+        loadProductsPage(1);
+      });
+    }
     loadProductCategories().finally(() => loadProductsPage());
   }
 
