@@ -221,6 +221,20 @@ test('cancellation returns inventory idempotently before finalizing the order', 
   assert.equal(returnCall.body.idempotencyKey, 'order:7:sale');
 });
 
+test('allows an administrator to cancel an order and restore its inventory', async () => {
+  const token = jwt.sign({ sub: 'admin-1', role: 'admin' }, jwtSecret);
+  const response = await fetch(`${gatewayUrl}/api/pedidos/7/cancelar`, {
+    method: 'PATCH',
+    headers: { authorization: 'Bearer ' + token },
+  });
+  const result = await response.json();
+  assert.equal(response.status, 200);
+  assert.equal(result.pedido.estado, 'cancelled');
+  const updates = observed.filter((call) => call.service === 'orders' && call.method === 'PATCH');
+  assert.deepEqual(updates.map((call) => call.body.estado), ['cancelling', 'cancelled']);
+  assert.ok(observed.some((call) => call.service === 'catalog' && call.body?.action === 'return'));
+});
+
 test('payment routes are authenticated and forwarded only to Orders', async () => {
   const token = jwt.sign({ sub: 'u-1', email: 'client@example.com', role: 'client' }, jwtSecret);
   const response = await fetch(`${gatewayUrl}/api/pedidos/7/pagar`, {

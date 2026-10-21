@@ -527,6 +527,54 @@
             color: #875f13;
         }
 
+        .order-status-select {
+            min-height: 36px;
+            max-width: 210px;
+            padding: 6px 30px 6px 10px;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            font: inherit;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .order-status-select:disabled {
+            cursor: default;
+            opacity: 1;
+        }
+
+        .order-status-select.is-processing {
+            background: #fff5db;
+            color: #875f13;
+        }
+
+        .order-status-select.is-awaiting-payment {
+            background: #eaf2ff;
+            color: #2457a7;
+        }
+
+        .order-status-select.is-paid {
+            background: #e8f5ed;
+            color: #246b3a;
+        }
+
+        .order-status-select.is-rejected,
+        .order-status-select.is-cancelled {
+            background: #fdebea;
+            color: #a33b32;
+        }
+
+        .order-status-select.is-shipped {
+            background: #e5f6fa;
+            color: #17677a;
+        }
+
+        .order-status-select.is-delivered {
+            background: #e7f4e8;
+            color: #28753b;
+        }
+
         .admin-actions {
             align-items: center;
         }
@@ -2445,7 +2493,7 @@
                     }
 
                     const labels = {
-                        pending: 'Procesando',
+                        pending: 'En proceso',
                         confirmed: 'Pendiente de pago',
                         paid: 'Pagado',
                         rejected: 'Rechazado',
@@ -2454,13 +2502,33 @@
                         shipped: 'Enviado',
                         delivered: 'Entregado',
                     };
+                    const availableTransitions = {
+                        pending: ['pending'],
+                        confirmed: ['confirmed', 'cancelled'],
+                        paid: ['paid', 'shipped'],
+                        rejected: ['rejected'],
+                        cancelling: ['cancelling'],
+                        cancelled: ['cancelled'],
+                        shipped: ['shipped', 'delivered'],
+                        delivered: ['delivered'],
+                    };
+                    const statusClasses = {
+                        pending: 'is-processing',
+                        confirmed: 'is-awaiting-payment',
+                        paid: 'is-paid',
+                        rejected: 'is-rejected',
+                        cancelling: 'is-processing',
+                        cancelled: 'is-cancelled',
+                        shipped: 'is-shipped',
+                        delivered: 'is-delivered',
+                    };
                     container.innerHTML = `
                         <div class="admin-table-container">
                             <table class="admin-table">
-                                <thead><tr><th>Pedido</th><th>Cliente</th><th>Fecha</th><th>Estado</th><th>Total</th><th>Acciones</th></tr></thead>
+                                <thead><tr><th>Pedido</th><th>Cliente</th><th>Fecha</th><th>Estado</th><th>Total</th></tr></thead>
                                 <tbody>${orders.map((order) => {
                                     const state = order.estado || order.status;
-                                    const nextState = state === 'paid' ? 'Enviado' : state === 'shipped' ? 'Entregado' : null;
+                                    const transitions = availableTransitions[state] || [state];
                                     const customer = order.clienteInfo || {};
                                     const date = new Date(order.fecha);
                                     return `
@@ -2468,9 +2536,20 @@
                                             <td>#${Number(order.id)}</td>
                                             <td>${escapeHtml(customer.nombre)}<br>${escapeHtml(customer.email)}</td>
                                             <td>${escapeHtml(Number.isNaN(date.getTime()) ? order.fecha : date.toLocaleString('es-AR'))}</td>
-                                            <td>${escapeHtml(labels[state] || state)}</td>
+                                            <td>
+                                                <select class="order-status-select ${statusClasses[state] || 'is-processing'}"
+                                                    data-admin-order-id="${Number(order.id)}"
+                                                    data-current-state="${escapeHtml(state)}"
+                                                    aria-label="Estado del pedido #${Number(order.id)}"
+                                                    ${transitions.length === 1 ? 'disabled' : ''}>
+                                                    ${transitions.map((transition) => `
+                                                        <option value="${escapeHtml(transition)}" ${transition === state ? 'selected' : ''}>
+                                                            ${escapeHtml(labels[transition] || transition)}
+                                                        </option>
+                                                    `).join('')}
+                                                </select>
+                                            </td>
                                             <td>$${Number(order.total).toLocaleString('es-AR')}</td>
-                                            <td>${nextState ? `<button type="button" class="btn-edit" data-admin-order-id="${Number(order.id)}" data-admin-order-state="${nextState}">Marcar ${nextState.toLowerCase()}</button>` : ''}</td>
                                         </tr>
                                     `;
                                 }).join('')}</tbody>
@@ -2484,18 +2563,31 @@
             }
 
             async function updateAdminOrderStatus(orderId, state) {
+                const isCancellation = state === 'cancelled';
                 try {
-                    const response = await window.gatewayFetch(`/api/pedidos/${orderId}`, {
-                        method: 'PUT',
-                        headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ estado: state }),
-                    });
+                    const response = await window.gatewayFetch(
+                        isCancellation ? `/api/pedidos/${orderId}/cancelar` : `/api/pedidos/${orderId}`,
+                        {
+                            method: isCancellation ? 'PATCH' : 'PUT',
+                            headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+                            ...(isCancellation ? {} : {
+                                body: JSON.stringify({ estado: state === 'shipped' ? 'Enviado' : 'Entregado' }),
+                            }),
+                        },
+                    );
                     const result = await response.json();
                     if (!response.ok) throw new Error(result.message || result.mensaje || 'No se pudo actualizar el pedido');
-                    showNotification(`Pedido #${orderId} actualizado`);
+                    if (result.uncertain) {
+                        showNotification(result.mensaje, 'error');
+                    } else {
+                        showNotification(isCancellation
+                            ? `Pedido #${orderId} cancelado`
+                            : `Pedido #${orderId} actualizado`);
+                    }
                     await loadAdminOrders();
                 } catch (error) {
                     showNotification(error.message, 'error');
+                    await loadAdminOrders();
                 }
             }
             
@@ -2555,10 +2647,10 @@
                 setupProductFilters();
                 loadProductCategories();
                 loadProducts();
-                document.getElementById('orders-container').addEventListener('click', (event) => {
-                    const button = event.target.closest('[data-admin-order-id]');
-                    if (!button) return;
-                    updateAdminOrderStatus(Number(button.dataset.adminOrderId), button.dataset.adminOrderState);
+                document.getElementById('orders-container').addEventListener('change', (event) => {
+                    const select = event.target.closest('.order-status-select');
+                    if (!select || select.value === select.dataset.currentState) return;
+                    updateAdminOrderStatus(Number(select.dataset.adminOrderId), select.value);
                 });
             });
             

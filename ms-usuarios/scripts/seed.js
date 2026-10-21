@@ -6,6 +6,14 @@ const User = require('../src/User');
 const demoUsers = [
   { name: 'Administrador', apellido: 'Demo', email: 'admin@example.com', telefono: '1122334455', password: 'demo1234', role: 'admin' },
   { name: 'Cliente', apellido: 'Demo', email: 'cliente@example.com', telefono: '1199887766', password: 'demo1234', role: 'client' },
+  { name: 'Lionel', apellido: 'Messi', email: 'lionel.messi@example.com', telefono: '1100000001', password: 'demo1234', role: 'client' },
+  { name: 'Mirtha', apellido: 'Legrand', email: 'mirtha.legrand@example.com', telefono: '1100000002', password: 'demo1234', role: 'client' },
+  { name: 'Bizarrap', apellido: 'Demo', email: 'bizarrap@example.com', telefono: '1100000003', password: 'demo1234', role: 'client' },
+  { name: 'María', apellido: 'Becerra', email: 'maria.becerra@example.com', telefono: '1100000004', password: 'demo1234', role: 'client' },
+  { name: 'Ricardo', apellido: 'Darín', email: 'ricardo.darin@example.com', telefono: '1100000005', password: 'demo1234', role: 'client' },
+  { name: 'Taylor', apellido: 'Swift', email: 'taylor.swift@example.com', telefono: '1100000006', password: 'demo1234', role: 'client' },
+  { name: 'Zendaya', apellido: 'Demo', email: 'zendaya@example.com', telefono: '1100000007', password: 'demo1234', role: 'client' },
+  { name: 'Keanu', apellido: 'Reeves', email: 'keanu.reeves@example.com', telefono: '1100000008', password: 'demo1234', role: 'client' },
 ];
 
 async function seed() {

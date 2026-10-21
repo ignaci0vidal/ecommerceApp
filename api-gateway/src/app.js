@@ -334,8 +334,8 @@ function createApp({ usersUrl, catalogUrl, ordersUrl, timeoutMs }) {
   }
 
   app.patch('/api/pedidos/:id/cancelar', requireAuth, async (req, res) => {
-    if (req.user.role !== 'client') {
-      return res.status(403).json({ mensaje: 'Solo el cliente puede cancelar este pedido' });
+    if (!['client', 'admin'].includes(req.user.role)) {
+      return res.status(403).json({ mensaje: 'Se requieren permisos de cliente o administrador' });
     }
     if (!/^\d+$/.test(req.params.id)) return res.status(404).json({ mensaje: 'Pedido no encontrado' });
     const headers = serviceHeaders(req);
