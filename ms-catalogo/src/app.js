@@ -112,7 +112,10 @@ function createApp(pool) {
       const limit = Math.min(Math.max(Number.parseInt(req.query.limit, 10) || 10, 1), 100);
       const countResult = await pool.query('SELECT COUNT(*)::int AS count FROM coupons');
       const result = await pool.query(
-        'SELECT * FROM coupons ORDER BY id ASC LIMIT $1 OFFSET $2',
+        `SELECT *,
+          (active AND expires_on >= CURRENT_DATE AND usage_count < usage_limit) AS is_valid,
+          (expires_on >= CURRENT_DATE AND usage_count < usage_limit) AS can_be_valid
+         FROM coupons ORDER BY id ASC LIMIT $1 OFFSET $2`,
         [limit, (page - 1) * limit],
       );
       const items = result.rows.map((coupon) => ({
@@ -123,6 +126,8 @@ function createApp(pool) {
         limite_stock: coupon.usage_limit,
         usos_actuales: coupon.usage_count,
         activo: coupon.active,
+        es_valido: coupon.is_valid,
+        puede_activarse: coupon.can_be_valid,
       }));
       const count = countResult.rows[0].count;
       return res.json({
@@ -135,6 +140,39 @@ function createApp(pool) {
     } catch (error) {
       console.error('Failed to list coupons:', error);
       return res.status(500).json({ message: 'No se pudieron consultar los cupones' });
+    }
+  });
+
+  app.patch('/api/cupones/:id/estado', requireUser, requireAdmin, async (req, res) => {
+    const { activo } = req.body || {};
+    if (!/^\d+$/.test(req.params.id) || typeof activo !== 'boolean') {
+      return res.status(400).json({ message: 'Estado de cupón inválido' });
+    }
+    try {
+      const result = await pool.query(
+        `UPDATE coupons SET active = $1
+         WHERE id = $2
+           AND ($1 = FALSE OR (expires_on >= CURRENT_DATE AND usage_count < usage_limit))
+         RETURNING id, active, (active AND expires_on >= CURRENT_DATE
+           AND usage_count < usage_limit) AS is_valid`,
+        [activo, req.params.id],
+      );
+      if (!result.rowCount) {
+        const exists = await pool.query('SELECT id FROM coupons WHERE id = $1', [req.params.id]);
+        if (!exists.rowCount) return res.status(404).json({ message: 'Cupón no encontrado' });
+        return res.status(409).json({ message: 'No se puede activar un cupón vencido o sin usos disponibles' });
+      }
+      return res.json({
+        success: true,
+        cupon: {
+          id: Number(result.rows[0].id),
+          activo: result.rows[0].active,
+          es_valido: result.rows[0].is_valid,
+        },
+      });
+    } catch (error) {
+      console.error('Failed to update coupon status:', error);
+      return res.status(500).json({ message: 'No se pudo actualizar el estado del cupón' });
     }
   });
 

@@ -84,6 +84,38 @@ test('coupon validation uses the database expiration result', async () => {
   assert.deepEqual(result, { valido: true, codigo: 'BIENVENIDA10', descuento: 10 });
 });
 
+test('admins can update coupon validity without changing other coupon data', async () => {
+  const updates = [];
+  pool = {
+    async query(sql, values) {
+      updates.push({ sql, values });
+      return {
+        rows: [{ id: '4', active: true, is_valid: true }],
+        rowCount: 1,
+      };
+    },
+  };
+  await new Promise((resolve) => server.close(resolve));
+  server = http.createServer(createApp(pool));
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+  baseUrl = `http://127.0.0.1:${server.address().port}`;
+  const token = jwt.sign({ sub: 'admin-1', role: 'admin' }, jwtSecret);
+
+  const response = await fetch(`${baseUrl}/api/cupones/4/estado`, {
+    method: 'PATCH',
+    headers: {
+      authorization: `Bearer ${token}`,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({ activo: true }),
+  });
+  const result = await response.json();
+  assert.equal(response.status, 200);
+  assert.deepEqual(result.cupon, { id: 4, activo: true, es_valido: true });
+  assert.match(updates[0].sql, /expires_on >= CURRENT_DATE AND usage_count < usage_limit/);
+  assert.deepEqual(updates[0].values, [true, '4']);
+});
+
 test('product writes require an administrator JWT', async () => {
   const token = jwt.sign({ sub: 'admin-1', role: 'admin' }, jwtSecret);
   const response = await fetch(`${baseUrl}/api/productos`, {

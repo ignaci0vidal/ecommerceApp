@@ -527,6 +527,27 @@
             color: #875f13;
         }
 
+        .coupon-status-select {
+            min-height: 30px;
+            padding: 4px 24px 4px 10px;
+            border: 0;
+            border-radius: 999px;
+            font: inherit;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .coupon-status-select.is-valid {
+            background: #edf7f0;
+            color: #246b3a;
+        }
+
+        .coupon-status-select.is-invalid {
+            background: #fdebea;
+            color: #a33b32;
+        }
+
         .order-status-select {
             min-height: 36px;
             max-width: 210px;
@@ -650,6 +671,23 @@
             to {
                 transform: translateY(0);
                 opacity: 1;
+            }
+        }
+
+        async function updateCouponStatus(couponId, isValid) {
+            try {
+                const response = await window.gatewayFetch(`/api/cupones/${couponId}/estado`, {
+                    method: 'PATCH',
+                    headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ activo: isValid }),
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.message || 'No se pudo actualizar el estado del cupón');
+                showNotification(isValid ? 'Cupón válido' : 'Cupón marcado como no válido');
+                await loadCoupons(adminCouponsPage);
+            } catch (error) {
+                showNotification(error.message, 'error');
+                await loadCoupons(adminCouponsPage);
             }
         }
 
@@ -1453,10 +1491,6 @@
             }
 
             function getCouponStatus(coupon) {
-                if (!coupon.activo) {
-                    return { label: 'Inactivo', className: 'is-paused' };
-                }
-
                 return coupon.es_valido
                     ? { label: 'Válido', className: 'is-valid' }
                     : { label: 'No válido', className: 'is-invalid' };
@@ -1916,7 +1950,15 @@
                                 <td>${escapeHtml(coupon.descuento)}%</td>
                                 <td>${escapeHtml(formatCouponExpiration(coupon.fecha_vencimiento))}</td>
                                 <td>${usosActuales}/${limiteStock}</td>
-                                <td><span class="status-chip ${status.className}">${status.label}</span></td>
+                                <td>
+                                    <select class="coupon-status-select ${status.className}"
+                                        data-coupon-id="${Number(couponId)}"
+                                        aria-label="Estado del cupón ${escapeHtml(coupon.codigo || '')}">
+                                        <option value="true" ${coupon.es_valido ? 'selected' : ''}
+                                            ${coupon.puede_activarse ? '' : 'disabled'}>Válido</option>
+                                        <option value="false" ${coupon.es_valido ? '' : 'selected'}>No válido</option>
+                                    </select>
+                                </td>
                                 <td class="admin-actions">
                                     <button class="btn-edit" onclick="editCoupon(${couponId})">
                                         <i class="fa-solid fa-pencil"></i> Editar
@@ -2512,6 +2554,16 @@
                         shipped: ['shipped', 'delivered'],
                         delivered: ['delivered'],
                     };
+                    const allOrderStates = [
+                        'pending',
+                        'confirmed',
+                        'cancelled',
+                        'paid',
+                        'shipped',
+                        'delivered',
+                        'rejected',
+                        'cancelling',
+                    ];
                     const statusClasses = {
                         pending: 'is-processing',
                         confirmed: 'is-awaiting-payment',
@@ -2542,8 +2594,10 @@
                                                     data-current-state="${escapeHtml(state)}"
                                                     aria-label="Estado del pedido #${Number(order.id)}"
                                                     ${transitions.length === 1 ? 'disabled' : ''}>
-                                                    ${transitions.map((transition) => `
-                                                        <option value="${escapeHtml(transition)}" ${transition === state ? 'selected' : ''}>
+                                                    ${allOrderStates.map((transition) => `
+                                                        <option value="${escapeHtml(transition)}"
+                                                            ${transition === state ? 'selected' : ''}
+                                                            ${transitions.includes(transition) ? '' : 'disabled'}>
                                                             ${escapeHtml(labels[transition] || transition)}
                                                         </option>
                                                     `).join('')}
@@ -2651,6 +2705,11 @@
                     const select = event.target.closest('.order-status-select');
                     if (!select || select.value === select.dataset.currentState) return;
                     updateAdminOrderStatus(Number(select.dataset.adminOrderId), select.value);
+                });
+                document.getElementById('coupons-container').addEventListener('change', (event) => {
+                    const select = event.target.closest('.coupon-status-select');
+                    if (!select) return;
+                    updateCouponStatus(Number(select.dataset.couponId), select.value === 'true');
                 });
             });
             
